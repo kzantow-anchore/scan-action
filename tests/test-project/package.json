@@ -1,0 +1,12 @@
+{
+  "name": "scan-action-test",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "url-parse": "1.5.1"
+  },
+  "devDependencies": {
+    "tar": "6.1.0"
+  }
+}

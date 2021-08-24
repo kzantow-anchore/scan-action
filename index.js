@@ -86,6 +86,7 @@ function dottedQuadFileVersion(version) {
 function get_fix_versions(v) {
   if (
     v.vulnerability.fix &&
+    v.vulnerability.fix.state === "fixed" &&
     v.vulnerability.fix.versions &&
     v.vulnerability.fix.versions.length > 0
   ) {
@@ -440,10 +441,9 @@ async function runScan({
 }) {
   const out = {};
 
-  const billOfMaterialsPath = "./anchore-reports/content.json";
   const SEVERITY_LIST = ["negligible", "low", "medium", "high", "critical"];
   let cmdArgs = [];
-  console.log(billOfMaterialsPath);
+
   if (debug.toLowerCase() === "true") {
     debug = "true";
     cmdArgs = [`-vv`, `-o`, `json`];
@@ -505,8 +505,12 @@ async function runScan({
   cmdOpts.ignoreReturnCode = true;
 
   core.info("\nAnalyzing: " + source);
-  core.debug(`Running cmd: ${cmd} ` + cmdArgs.join(" "));
-  let exitCode = await exec(cmd, cmdArgs, cmdOpts);
+
+  const exitCode = await core.group("Grype Output", () => {
+    core.info(`Executing: ${cmd} ` + cmdArgs.join(" "));
+    return exec(cmd, cmdArgs, cmdOpts);
+  });
+
   let grypeVulnerabilities = JSON.parse(cmdOutput);
 
   if (acsReportEnable) {
